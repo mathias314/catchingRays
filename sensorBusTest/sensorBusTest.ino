@@ -1,5 +1,7 @@
 #include <Wire.h>
 #include <MS5xxx.h>
+#include <SPI.h>
+#include <SD.h>
 
 MS5xxx altimeter(&Wire);
 
@@ -8,9 +10,14 @@ I2CGPS myI2CGPS; //Hook object to the library
 #include <TinyGPS++.h> //From: https://github.com/mikalhart/TinyGPSPlus
 TinyGPSPlus gps; //Declare gps object
 
+File dataFile;
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
+  while (!Serial) {
+    ; // wait for serial port to connect. Needed for native USB port only
+  }
 
   if (myI2CGPS.begin() == false)
   {
@@ -22,32 +29,61 @@ void setup() {
   if(altimeter.connect()>0) {
     Serial.println("Error connecting...");
     delay(500);
-    setup();
+    // setup();
   }
   Serial.println("connected to altimeter");
+
+
+  Serial.print("Initializing SD card...");
+
+  if (!SD.begin(4)) {
+    Serial.println("initialization failed!");
+    while (1);
+  }
+
+    
+  Serial.println("SD card initialization done.");
+
 }
 
 
 void loop() {
   // put your main code here, to run repeatedly:
-  altimeter.ReadProm();
-  altimeter.Readout();
-  Serial.print("Temperature C: ");
-  Serial.println(altimeter.GetTemp() / 100);
-  Serial.print("Pressure [Pa]: ");
-  Serial.println(altimeter.GetPres());
+
+  dataFile = SD.open("test.txt", FILE_WRITE);
+
+  if(dataFile)
+  {
+    Serial.print("Temperature C: ");
+    Serial.println(altimeter.GetTemp() / 100);
+    Serial.print("Pressure [Pa]: ");
+    Serial.println(altimeter.GetPres());
+  
+    dataFile.println(altimeter.GetTemp() / 100);
+    dataFile.println(',');
+    dataFile.println(altimeter.GetPres());
+  }
+  else
+  {
+    Serial.println("data file not open :(");
+  }
+
+    dataFile.close();
+  // dataFile.print("\n");
 
   Serial.println("---");
-
-  while (myI2CGPS.available()) //available() returns the number of new bytes available from the GPS module
-  {
-    gps.encode(myI2CGPS.read()); //Feed the GPS parser
-  }
-
-  if (gps.time.isUpdated()) //Check to see if new GPS info is available
-  {
-    displayInfo();
-  }
+//
+//  while (myI2CGPS.available()) //available() returns the number of new bytes available from the GPS module
+//  {
+//    gps.encode(myI2CGPS.read()); //Feed the GPS parser
+//  }
+//
+//  if (gps.time.isUpdated()) //Check to see if new GPS info is available
+//  {
+//    displayInfo();
+//  }
+  
+  
   delay(1000);
 }
 

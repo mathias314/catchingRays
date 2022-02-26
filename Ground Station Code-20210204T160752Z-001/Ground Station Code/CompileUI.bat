@@ -1,1 +1,0 @@
-pyside2-uic.exe trackermain.ui -o ui_trackermain.py

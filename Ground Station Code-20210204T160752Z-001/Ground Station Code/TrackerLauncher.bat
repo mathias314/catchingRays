@@ -1,1 +1,0 @@
-python.exe Antenna_Tracker_Controls_GUI.py

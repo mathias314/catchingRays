@@ -29,7 +29,7 @@ void setup() {
   if(altimeter.connect()>0) {
     Serial.println("Error connecting...");
     delay(500);
-    // setup();
+    setup();
   }
   Serial.println("connected to altimeter");
 
@@ -51,7 +51,10 @@ void loop() {
   // put your main code here, to run repeatedly:
 
   dataFile = SD.open("test.txt", FILE_WRITE);
-
+  
+  altimeter.ReadProm();
+  altimeter.Readout();
+  
   if(dataFile)
   {
     Serial.print("Temperature C: ");
@@ -59,17 +62,18 @@ void loop() {
     Serial.print("Pressure [Pa]: ");
     Serial.println(altimeter.GetPres());
   
-    dataFile.println(altimeter.GetTemp() / 100);
-    dataFile.println(',');
-    dataFile.println(altimeter.GetPres());
+    dataFile.print(altimeter.GetTemp() / 100);
+    dataFile.print(',');
+    dataFile.print(altimeter.GetPres());
+    dataFile.print(',');
+    dataFile.print("\n");
   }
   else
   {
     Serial.println("data file not open :(");
   }
 
-    dataFile.close();
-  // dataFile.print("\n");
+   dataFile.close();
 
   Serial.println("---");
 //

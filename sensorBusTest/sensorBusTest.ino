@@ -55,8 +55,10 @@ void loop() {
   altimeter.ReadProm();
   altimeter.Readout();
   
-  if(dataFile)
+  if(dataFile && myI2CGPS.available())
   {
+    gps.encode(myI2CGPS.read()); //Feed the GPS parser
+
     Serial.print("Temperature C: ");
     Serial.println(altimeter.GetTemp() / 100);
     Serial.print("Pressure [Pa]: ");
@@ -66,26 +68,53 @@ void loop() {
     dataFile.print(',');
     dataFile.print(altimeter.GetPres());
     dataFile.print(',');
-    dataFile.print("\n");
+    dataFile.print(gps.date.month());
+    dataFile.print(',');
+    dataFile.print(gps.date.day());
+    dataFile.print(',');
+    dataFile.print(gps.date.year());
+    dataFile.print(',');
+
+    if (gps.time.hour() < 10) dataFile.print(F("0"));
+    dataFile.print(gps.time.hour());
+    dataFile.print(F(":"));
+    if (gps.time.minute() < 10) dataFile.print(F("0"));
+    dataFile.print(gps.time.minute());
+    dataFile.print(F(":"));
+    if (gps.time.second() < 10) dataFile.print(F("0"));
+    dataFile.print(gps.time.second());
+
+    dataFile.print(',');
+
+    dataFile.print(gps.location.lat(), 6);
+    dataFile.print(',');
+    dataFile.print(gps.location.lng(), 6);
+    dataFile.print(',');
+    dataFile.print(gps.altitude.meters());
+    dataFile.print(',');
+    dataFile.print(gps.satellites.value());
+    dataFile.print(',');
+
+    dataFile.print('\n');
   }
   else
   {
-    Serial.println("data file not open :(");
+    Serial.println("data file not open or no gps:(");
   }
 
    dataFile.close();
 
   Serial.println("---");
-//
-//  while (myI2CGPS.available()) //available() returns the number of new bytes available from the GPS module
-//  {
-//    gps.encode(myI2CGPS.read()); //Feed the GPS parser
-//  }
-//
-//  if (gps.time.isUpdated()) //Check to see if new GPS info is available
-//  {
-//    displayInfo();
-//  }
+
+  while (myI2CGPS.available()) //available() returns the number of new bytes available from the GPS module
+  {
+    gps.encode(myI2CGPS.read()); //Feed the GPS parser
+  }
+
+  if (gps.time.isUpdated()) //Check to see if new GPS info is available
+  {
+    displayInfo();
+  }
   
   
   delay(1000);

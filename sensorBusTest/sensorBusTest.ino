@@ -1,3 +1,6 @@
+// todo: see if code works with an uno instead of mega
+// todo: see if file name/type can change from test.txt
+
 #include <Wire.h>
 #include <MS5xxx.h>
 #include <SPI.h>
@@ -104,85 +107,5 @@ void loop() {
 
    dataFile.close();
 
-  Serial.println("---");
-
-  while (myI2CGPS.available()) //available() returns the number of new bytes available from the GPS module
-  {
-    gps.encode(myI2CGPS.read()); //Feed the GPS parser
-  }
-
-  if (gps.time.isUpdated()) //Check to see if new GPS info is available
-  {
-    displayInfo();
-  }
-  
-  
   delay(1000);
-}
-
-void displayInfo()
-{
-  //We have new GPS data to deal with!
-  Serial.println();
-
-  if (gps.time.isValid())
-  {
-    Serial.print(F("Date: "));
-    Serial.print(gps.date.month());
-    Serial.print(F("/"));
-    Serial.print(gps.date.day());
-    Serial.print(F("/"));
-    Serial.print(gps.date.year());
-
-    Serial.print((" Time: "));
-    if (gps.time.hour() < 10) Serial.print(F("0"));
-    Serial.print(gps.time.hour());
-    Serial.print(F(":"));
-    if (gps.time.minute() < 10) Serial.print(F("0"));
-    Serial.print(gps.time.minute());
-    Serial.print(F(":"));
-    if (gps.time.second() < 10) Serial.print(F("0"));
-    Serial.print(gps.time.second());
-
-    Serial.println(); //Done printing time
-  }
-  else
-  {
-    Serial.println(F("Time not yet valid"));
-  }
-
-  if (gps.location.isValid())
-  {
-    Serial.print("Location: ");
-    Serial.print(gps.location.lat(), 6);
-    Serial.print(F(", "));
-    Serial.print(gps.location.lng(), 6);
-    Serial.println();
-  }
-  else
-  {
-    Serial.println(F("Location not yet valid"));
-  }
-
-  if (gps.altitude.isValid())
-  {
-    Serial.print(F("Altitude Meters:"));
-    Serial.print(gps.altitude.meters());
-    Serial.print(F(" Feet:"));
-    Serial.print(gps.altitude.feet());
-  }
-
-  if (gps.satellites.isValid())
-  {
-    Serial.print(F(" Satellites in View:"));
-    Serial.print(gps.satellites.value());
-  }
-
-  if (gps.hdop.isValid())
-  {
-    Serial.print(F(" HDOP:"));
-    Serial.print(gps.hdop.value()/100.0, 2); //TinyGPS reports DOPs in 100ths
-  }
-
-  Serial.println(); //Done printing alt, siv, hdop
 }

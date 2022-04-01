@@ -1,5 +1,12 @@
 // todo: see if code works with an uno instead of mega
-// todo: see if file name/type can change from test.txt
+
+// sd card wiring (for mega!!):
+// 5v -> vcc
+// gnd -> gnd
+// 51 -> MOSI
+// 50 -> MISO
+// 52 -> SCK
+// gnd -> CS (active low, probably bad practice...)
 
 #include <Wire.h>
 #include <MS5xxx.h>
@@ -44,6 +51,9 @@ void setup() {
     while (1);
   }
 
+  dataFile = SD.open("dataFile.csv", FILE_WRITE);
+  dataFile.println("Temp (c), Pressure (Pa), month, day, year, time, lat, long, alt (m), satellites");
+  dataFile.close();
     
   Serial.println("SD card initialization done.");
 
@@ -53,7 +63,7 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
 
-  dataFile = SD.open("test.txt", FILE_WRITE);
+  dataFile = SD.open("dataFile.csv", FILE_WRITE);
   
   altimeter.ReadProm();
   altimeter.Readout();
